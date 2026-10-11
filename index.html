@@ -1,204 +1,839 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Just relax, ok?</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хэллоуин: Проклятые Свечи</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#000;
-  color:#fff;
-  overflow:hidden;
-  user-select:none;
-}
+        body {
+            font-family: 'Russo One', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #2a0a38;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            padding: 10px;
+        }
 
-#bg{
-  position:fixed;
-  inset:0;
-  background:url("D0AB2572-11AE-47A3-AD8D-A31B53372CB5.jpeg") center/cover no-repeat;
-  filter:brightness(.7);
-  z-index:-2;
-}
+        #bg-spiral {
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: repeating-radial-gradient(
+                circle at center,
+                #f26d21 0px, #f26d21 60px,
+                #572a7c 60px, #572a7c 120px
+            );
+            animation: spin 25s linear infinite;
+            filter: blur(12px);
+            z-index: -1;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  z-index:10;
-}
+        .game-container {
+            background: rgba(25, 0, 40, 0.93);
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), inset 0 0 25px rgba(242,109,33,0.4);
+            text-align: center;
+            max-width: 640px;
+            width: 100%;
+            backdrop-filter: blur(6px);
+            border: 3px solid #f26d21;
+            z-index: 1;
+            max-height: 96vh;
+            overflow-y: auto;
+        }
 
-.box{
-  max-width:90%;
-  font-size:18px;
-  line-height:1.5;
-}
+        /* СТАРТОВЫЙ ЭКРАН */
+        .start-screen {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 16px; padding: 12px 8px;
+            animation: fadeIn 0.6s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .start-screen h1 {
+            color: #f26d21; font-size: 30px;
+            text-shadow: 2px 2px 0 #572a7c, 4px 4px 0 #000;
+            letter-spacing: 2px;
+            text-align: center;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 0 #572a7c, 4px 4px 0 #000, 0 0 10px #f26d21; }
+            to { text-shadow: 2px 2px 0 #572a7c, 4px 4px 0 #000, 0 0 25px #f26d21, 0 0 35px #f26d21; }
+        }
+        .subtitle { color: #ccc; font-size: 14px; letter-spacing: 1px; text-align: center; }
 
-#app{
-  position:relative;
-  width:100%;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
+        .controls-box {
+            background: rgba(87, 42, 124, 0.4);
+            border: 2px dashed #f26d21;
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex; flex-direction: column; gap: 6px;
+            max-width: 540px;
+            text-align: left;
+        }
+        .controls-box .ctrl-title {
+            color: #f26d21; font-size: 15px;
+            letter-spacing: 1px; margin-bottom: 4px;
+            text-shadow: 1px 1px 0 #000;
+            text-align: center;
+        }
+        .controls-box .ctrl-line {
+            color: #fff; font-size: 12px;
+            line-height: 1.6; letter-spacing: 0.5px;
+        }
+        .controls-box .ctrl-line span { color: #f26d21; }
 
-#title{
-  position:absolute;
-  top:30px;
-  font-size:22px;
-  opacity:.9;
-}
+        .btn {
+            font-family: 'Russo One', sans-serif;
+            font-size: 16px;
+            background-color: #572a7c;
+            color: #f26d21;
+            border: 3px solid #f26d21;
+            padding: 12px 26px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 0 #000;
+            letter-spacing: 1px;
+            touch-action: manipulation;
+        }
+        .btn:hover {
+            background-color: #f26d21; color: #572a7c;
+            border-color: #572a7c;
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 5px 20px rgba(242,109,33,0.7);
+        }
+        .btn:active { transform: scale(0.95); }
 
-#timer{
-  font-size:72px;
-  font-weight:bold;
-  letter-spacing:2px;
-}
-</style>
+        /* ИГРОВОЕ ПОЛЕ */
+        .game-area {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .stage-info {
+            color: #f26d21;
+            font-size: 15px;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0 #000, 0 0 10px #f26d21;
+            min-height: 22px;
+        }
+        .stage-info .stage-num {
+            color: #fff;
+            font-size: 13px;
+        }
+        .stage-info.watching {
+            color: #ffcc66;
+            animation: watchPulse 1s ease-in-out infinite alternate;
+        }
+        @keyframes watchPulse {
+            from { text-shadow: 1px 1px 0 #000, 0 0 6px #f26d21; }
+            to { text-shadow: 1px 1px 0 #000, 0 0 18px #f26d21, 0 0 25px #ffcc66; }
+        }
+
+        /* Сетка свечей: 6 x 4 */
+        .candles-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            background: rgba(15, 2, 25, 0.85);
+            border: 3px solid #f26d21;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: inset 0 0 25px rgba(242,109,33,0.25);
+            transition: filter 0.5s ease, opacity 0.5s ease;
+        }
+        .candles-grid.grayed {
+            filter: grayscale(1) brightness(0.5);
+            opacity: 0.65;
+        }
+
+        /* Свеча */
+        .candle {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 6px 2px 8px;
+            border-radius: 8px;
+            background: rgba(87, 42, 124, 0.35);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            min-height: 80px;
+        }
+
+        .flame {
+            font-size: 20px;
+            line-height: 1;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            filter: drop-shadow(0 0 8px #f26d21);
+            margin-bottom: 2px;
+        }
+
+        .candle-body {
+            font-size: 26px;
+            line-height: 1;
+            filter: grayscale(0.3) brightness(0.7);
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        .candle-letter {
+            position: absolute;
+            top: 4px;
+            font-size: 12px;
+            color: #ccc;
+            letter-spacing: 0;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .candle.lit {
+            background: rgba(242, 109, 33, 0.3);
+            box-shadow: 0 0 22px rgba(242, 109, 33, 0.85), inset 0 0 10px rgba(242, 109, 33, 0.5);
+            transform: scale(1.05);
+        }
+        .candle.lit .flame {
+            opacity: 1;
+            transform: scale(1);
+            animation: flicker 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes flicker {
+            from { transform: scale(1) translateY(0); opacity: 1; }
+            to { transform: scale(1.15) translateY(-2px); opacity: 0.85; }
+        }
+        .candle.lit .candle-body {
+            filter: grayscale(0) brightness(1.3) drop-shadow(0 0 10px #f26d21);
+            transform: translateY(-3px);
+        }
+        .candle.lit .candle-letter {
+            color: #f26d21;
+            text-shadow: 0 0 10px #f26d21;
+            font-size: 14px;
+        }
+
+        /* Поле ввода */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.4s ease;
+        }
+        .input-area.hidden {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .input-label {
+            color: #ccc;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .input-field {
+            font-family: 'Russo One', sans-serif;
+            font-size: 20px;
+            letter-spacing: 4px;
+            text-align: center;
+            background: rgba(15, 2, 25, 0.9);
+            color: #f26d21;
+            border: 3px solid #f26d21;
+            border-radius: 10px;
+            padding: 10px 14px;
+            width: 100%;
+            max-width: 420px;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+            text-shadow: 0 0 8px rgba(242,109,33,0.6);
+        }
+        .input-field:focus {
+            box-shadow: 0 0 20px rgba(242,109,33,0.7);
+        }
+
+        .input-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            min-height: 40px;
+            padding: 8px;
+            background: rgba(15, 2, 25, 0.7);
+            border: 2px dashed rgba(242,109,33,0.4);
+            border-radius: 10px;
+            max-width: 100%;
+        }
+        .input-char {
+            font-family: 'Russo One', sans-serif;
+            font-size: 22px;
+            color: #f26d21;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 8px rgba(242,109,33,0.6);
+        }
+        .input-char.correct {
+            color: #4caf50;
+            text-shadow: 0 0 8px #4caf50;
+        }
+        .input-char.wrong {
+            color: #ff3333;
+            text-shadow: 0 0 10px #ff3333;
+            animation: shakeChar 0.4s ease;
+        }
+        @keyframes shakeChar {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .hint-msg {
+            min-height: 20px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            color: #f26d21;
+            text-shadow: 1px 1px 0 #000;
+            transition: opacity 0.3s ease;
+        }
+        .hint-msg.warn { color: #ff5555; }
+        .hint-msg.good { color: #4caf50; }
+
+        /* ЭКРАН ФИНАЛА — 3 строки ввода */
+        .final-input-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 8px;
+            animation: fadeIn 0.6s ease forwards;
+        }
+        .final-input-screen h2 {
+            color: #f26d21;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #572a7c, 0 0 15px #f26d21;
+            margin-bottom: 4px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .final-input-screen .subtitle {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .final-input-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .final-input-row .row-label {
+            color: #ccc;
+            font-size: 13px;
+            letter-spacing: 1px;
+            align-self: flex-start;
+        }
+        .final-input-row .input-field {
+            max-width: 100%;
+        }
+        .final-input-row .input-display {
+            width: 100%;
+        }
+
+        /* ФИНАЛЬНЫЙ ЭКРАН */
+        .end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 10px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        .end-screen h1 {
+            color: #f26d21; font-size: 24px;
+            text-shadow: 2px 2px 0 #572a7c, 4px 4px 0 #000;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .end-screen p {
+            color: #fff; font-size: 16px;
+            text-shadow: 1px 1px 2px #000;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .end-screen p.sub-text { color: #ccc; font-size: 14px; }
+        .end-screen p.final-text {
+            color: #f26d21; font-size: 18px;
+            text-shadow: 1px 1px 0 #000, 0 0 10px #f26d21;
+        }
+        .end-screen .phrase {
+            color: #f26d21;
+            font-size: 26px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px #f26d21, 2px 2px 0 #000;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        /* АДАПТИВ */
+        @media (max-width: 600px) {
+            .candles-grid { gap: 5px; padding: 10px; }
+            .candle { min-height: 62px; padding: 4px 1px 6px; }
+            .candle-body { font-size: 20px; }
+            .flame { font-size: 15px; }
+            .candle-letter { font-size: 10px; }
+            .candle.lit .candle-letter { font-size: 12px; }
+            .start-screen h1 { font-size: 22px; }
+            .subtitle { font-size: 12px; }
+            .controls-box { padding: 10px 14px; }
+            .controls-box .ctrl-title { font-size: 13px; }
+            .controls-box .ctrl-line { font-size: 11px; }
+            .btn { font-size: 14px; padding: 10px 20px; }
+            .input-char { font-size: 18px; padding: 2px 6px; }
+            .input-field { font-size: 16px; letter-spacing: 2px; }
+            .end-screen h1 { font-size: 18px; }
+            .end-screen p { font-size: 13px; }
+            .end-screen p.final-text { font-size: 14px; }
+            .end-screen .phrase { font-size: 18px; }
+            .stage-info { font-size: 13px; }
+            .final-input-screen h2 { font-size: 16px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="bg"></div>
+<div id="bg-spiral"></div>
 
-<!-- ОБУЧЕНИЕ -->
-<div class="overlay" id="tutorial">
-  <div class="box">
-    <h2>Небольшое обучение</h2>
-    <p>
-      Просто подожди <b>15 минут</b>.<br><br>
-    </p>
-    <br>
-    <button onclick="start()">Окей</button>
-  </div>
+<div class="game-container">
+
+    <!-- СТАРТОВЫЙ ЭКРАН -->
+    <div class="start-screen" id="start-screen">
+        <h1>Проклятые Свечи</h1>
+        <p class="subtitle">Запомни три слова, которые прошепчут свечи</p>
+        <div class="controls-box">
+            <div class="ctrl-title">ПРАВИЛА</div>
+            <div class="ctrl-line"><span>1.</span> 24 свечи 🕯 выстроены 6×4, на них буквы A–Y</div>
+            <div class="ctrl-line"><span>2.</span> Свечи загораются <b>по буквам слова этапа</b>, слева направо</div>
+            <div class="ctrl-line"><span>3.</span> Каждая горит 2 сек, пауза — 2 сек, слово проигрывается 1 раз</div>
+            <div class="ctrl-line"><span>4.</span> Когда всё прогорит — свечи сереют и появляется «Напиши слово»</div>
+            <div class="ctrl-line"><span>5.</span> Три этапа, а затем — три строки для итоговой фразы</div>
+            <div class="ctrl-line"><span>Ошибка:</span> неправильные буквы подсветятся красным</div>
+        </div>
+        <button class="btn" onclick="startGame()">Зажечь свечи</button>
+    </div>
+
+    <!-- ИГРОВОЕ ПОЛЕ -->
+    <div class="game-area" id="game-area">
+        <div class="stage-info" id="stage-info">
+            ЭТАП 1 / 3: <span class="stage-num">смотри на свечи...</span>
+        </div>
+
+        <div class="candles-grid" id="candles-grid"></div>
+
+        <div class="input-area hidden" id="input-area">
+            <div class="input-label" id="input-label">НАПИШИ СЛОВО:</div>
+            <input type="text" class="input-field" id="input-field" maxlength="30" autocomplete="off" spellcheck="false" placeholder="...">
+            <div class="input-display" id="input-display"></div>
+            <button class="btn" onclick="checkInput()" id="check-btn">Проверить</button>
+            <div class="hint-msg" id="hint-msg"></div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН ФИНАЛЬНОГО ВВОДА (три строки) -->
+    <div class="final-input-screen" id="final-input-screen">
+        <h2>СОБЕРИ ИТОГОВУЮ ФРАЗУ</h2>
+        <p class="subtitle">Введи все три слова по порядку</p>
+
+        <div class="final-input-row">
+            <div class="row-label">СЛОВО 1:</div>
+            <input type="text" class="input-field" id="final-input-1" maxlength="20" autocomplete="off" spellcheck="false" placeholder="...">
+            <div class="input-display" id="final-display-1"></div>
+        </div>
+
+        <div class="final-input-row">
+            <div class="row-label">СЛОВО 2:</div>
+            <input type="text" class="input-field" id="final-input-2" maxlength="20" autocomplete="off" spellcheck="false" placeholder="...">
+            <div class="input-display" id="final-display-2"></div>
+        </div>
+
+        <div class="final-input-row">
+            <div class="row-label">СЛОВО 3:</div>
+            <input type="text" class="input-field" id="final-input-3" maxlength="20" autocomplete="off" spellcheck="false" placeholder="...">
+            <div class="input-display" id="final-display-3"></div>
+        </div>
+
+        <button class="btn" onclick="checkFinalInputs()">Проверить</button>
+        <div class="hint-msg" id="final-hint-msg"></div>
+    </div>
+
+    <!-- ФИНАЛЬНЫЙ ЭКРАН -->
+    <div class="end-screen" id="end-screen">
+        <h1 id="end-title">ПОЗДРАВЛЯЕМ, ТЫ ПРОШЁЛ (-А) ИСПЫТАНИЕ!</h1>
+        <p class="sub-text" id="end-sub">можешь спать спокойно... Пока...</p>
+        <div class="phrase" id="end-phrase">Cursed Seal City</div>
+        <p class="final-text" id="end-final">Не забудь отправить скрин в группу!</p>
+    </div>
+
 </div>
-
-<!-- ИГРА -->
-<div id="app" style="display:none">
-  <div id="title">Just relax, ok?</div>
-  <div id="timer">15:00</div>
-</div>
-
-<!-- ФИНАЛ -->
-<div class="overlay" id="finish" style="display:none">
-  <div class="box">
-    <h2>🎉 Молодец!</h2>
-    <p>
-      Ты прошел(-а)<br>
-      <b>мини-игру №5</b>
-    </p>
-  </div>
-</div>
-
-<audio id="player" preload="auto"></audio>
 
 <script>
-const tracks=[
-  "сельдережуй,-shut-up!-2.0.mp3",
-  "дебют.мс.беременности.mp3.mp3",
-  "Курчаткина.m4a",
-  "VIP СКАМ .mp3",
-  "ScreenRecording_12-11-2025 09-03-05_1 (Cover).mp3"
-];
+    // ===== ПАРАМЕТРЫ =====
+    const LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','Y'];
 
-let currentTrack=0;
-let totalSeconds=15*60;
-let interval=null;
-let running=false;
+    const LIT_DURATION = 2000;
+    const GAP_DURATION = 2000;
+    const STAGES = ['Cursed', 'Seal', 'City'];
 
-const player=document.getElementById("player");
-const timerEl=document.getElementById("timer");
+    let gameActive = false;
+    let stage = 1;
+    let wordIndex = 0;
+    let candleTimer = null;
+    let inputUnlocked = false;
 
-function fmt(s){
-  return String(Math.floor(s/60)).padStart(2,"0")+":"+
-         String(s%60).padStart(2,"0");
-}
+    // ===== СТАРТ =====
+    function startGame() {
+        gameActive = true;
+        stage = 1;
+        wordIndex = 0;
+        inputUnlocked = false;
 
-function start(){
-  document.getElementById("tutorial").style.display="none";
-  document.getElementById("finish").style.display="none";
-  document.getElementById("app").style.display="flex";
-  running=true;
-  totalSeconds=15*60;
-  timerEl.textContent=fmt(totalSeconds);
-  playTrack();
-  startTimer();
-}
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('final-input-screen').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'none';
+        document.getElementById('game-area').style.display = 'flex';
 
-function startTimer(){
-  clearInterval(interval);
-  interval=setInterval(()=>{
-    totalSeconds--;
-    timerEl.textContent=fmt(totalSeconds);
-
-    if(totalSeconds===666){
-      document.body.style.filter="hue-rotate(180deg)";
+        buildCandles();
+        updateStageInfoWatching();
+        clearInput();
+        lockInput();
+        playStageWord();
     }
 
-    if(totalSeconds<=0){
-      clearInterval(interval);
-      complete();
+    // ===== СВЕЧИ =====
+    function buildCandles() {
+        const grid = document.getElementById('candles-grid');
+        grid.innerHTML = '';
+        grid.classList.remove('grayed');
+
+        LETTERS.forEach((letter) => {
+            const candle = document.createElement('div');
+            candle.classList.add('candle');
+            candle.dataset.letter = letter;
+
+            const letterEl = document.createElement('div');
+            letterEl.classList.add('candle-letter');
+            letterEl.textContent = letter;
+
+            const flame = document.createElement('div');
+            flame.classList.add('flame');
+            flame.textContent = '🔥';
+
+            const body = document.createElement('div');
+            body.classList.add('candle-body');
+            body.textContent = '🕯';
+
+            candle.appendChild(letterEl);
+            candle.appendChild(flame);
+            candle.appendChild(body);
+
+            grid.appendChild(candle);
+        });
     }
-  },1000);
-}
 
-function complete(){
-  running=false;
-  player.pause();
-  document.getElementById("app").style.display="none";
-  document.getElementById("finish").style.display="flex";
-}
+    // ===== ПРОИГРЫВАНИЕ СЛОВА ЭТАПА =====
+    function playStageWord() {
+        const word = STAGES[stage - 1].toUpperCase();
+        wordIndex = 0;
+        document.querySelectorAll('.candle').forEach(c => c.classList.remove('lit'));
+        document.getElementById('candles-grid').classList.remove('grayed');
 
-function playTrack(){
-  player.src=tracks[currentTrack];
-  player.currentTime=0;
-  player.play();
-}
+        setTimeout(() => {
+            if (!gameActive) return;
+            playNextLetter(word);
+        }, 600);
+    }
 
-player.onended=()=>{
-  currentTrack=(currentTrack+1)%tracks.length;
-  playTrack();
-};
+    function playNextLetter(word) {
+        if (!gameActive) return;
+        if (wordIndex >= word.length) {
+            // Слово проиграно — гасим всё, сереем, разблокируем ввод
+            document.querySelectorAll('.candle').forEach(c => c.classList.remove('lit'));
+            document.getElementById('candles-grid').classList.add('grayed');
+            updateStageInfoWriting();
+            unlockInput();
+            return;
+        }
 
-/* АНТИ-ПАУЗА И ПЕРЕМОТКА */
-player.addEventListener("pause",()=>{
-  if(running) player.play();
-});
+        const letter = word[wordIndex];
+        const candle = document.querySelector(`.candle[data-letter="${letter}"]`);
+        if (candle) candle.classList.add('lit');
 
-player.addEventListener("seeking",()=>{
-  player.currentTime=0;
-});
+        candleTimer = setTimeout(() => {
+            if (!gameActive) return;
+            if (candle) candle.classList.remove('lit');
 
-/* АНТИ-ЧИТ */
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden && running){
-    resetAll();
-  }
-});
+            candleTimer = setTimeout(() => {
+                if (!gameActive) return;
+                wordIndex++;
+                playNextLetter(word);
+            }, GAP_DURATION);
+        }, LIT_DURATION);
+    }
 
-window.addEventListener("blur",()=>{
-  if(running) resetAll();
-});
+    // ===== ИНФО ЭТАПА =====
+    function updateStageInfoWatching() {
+        const el = document.getElementById('stage-info');
+        el.classList.add('watching');
+        if (stage <= 3) {
+            el.innerHTML = `ЭТАП ${stage} / 3: <span class="stage-num">смотри на свечи...</span>`;
+        }
+    }
 
-function resetAll(){
-  running=false;
-  clearInterval(interval);
-  player.pause();
-  player.currentTime=0;
-  document.body.style.filter="none";
-  document.getElementById("app").style.display="none";
-  document.getElementById("finish").style.display="none";
-  document.getElementById("tutorial").style.display="flex";
-}
+    function updateStageInfoWriting() {
+        const el = document.getElementById('stage-info');
+        el.classList.remove('watching');
+        if (stage <= 3) {
+            el.innerHTML = `ЭТАП ${stage} / 3: <span class="stage-num">НАПИШИ СЛОВО</span>`;
+        }
+    }
+
+    // ===== БЛОКИРОВКА / РАЗБЛОКИРОВКА ВВОДА =====
+    function lockInput() {
+        inputUnlocked = false;
+        document.getElementById('input-area').classList.add('hidden');
+    }
+
+    function unlockInput() {
+        inputUnlocked = true;
+        const area = document.getElementById('input-area');
+        area.classList.remove('hidden');
+
+        const label = document.getElementById('input-label');
+        if (stage <= 3) {
+            label.textContent = `НАПИШИ СЛОВО ИЗ ЭТАПА ${stage}:`;
+        }
+        setTimeout(() => document.getElementById('input-field').focus(), 200);
+    }
+
+    // ===== ВВОД СЛОВА ЭТАПА =====
+    function clearInput() {
+        document.getElementById('input-field').value = '';
+        document.getElementById('input-display').innerHTML = '';
+        document.getElementById('hint-msg').textContent = '';
+        document.getElementById('hint-msg').className = 'hint-msg';
+    }
+
+    function normalize(s) {
+        return s.trim().replace(/\s+/g, ' ');
+    }
+
+    function checkInput() {
+        if (!gameActive || !inputUnlocked) return;
+
+        const raw = document.getElementById('input-field').value;
+        const input = normalize(raw);
+        if (!input) {
+            showHint('Введи слово!', 'warn');
+            return;
+        }
+
+        const correctAnswer = STAGES[stage - 1];
+        const inputLower = input.toLowerCase();
+        const answerLower = correctAnswer.toLowerCase();
+
+        renderInputDisplay(document.getElementById('input-display'), input, correctAnswer);
+
+        if (inputLower === answerLower) {
+            showHint('Верно!', 'good');
+            document.querySelectorAll('#input-display .input-char').forEach(c => {
+                c.classList.remove('wrong');
+                c.classList.add('correct');
+            });
+            inputUnlocked = false;
+
+            setTimeout(() => {
+                if (stage < 3) {
+                    stage++;
+                    clearInput();
+                    lockInput();
+                    updateStageInfoWatching();
+                    playStageWord();
+                    showHint('Следующий этап!', 'good');
+                } else {
+                    // Третий этап пройден — показываем экран с тремя строками
+                    goToFinalInputScreen();
+                }
+            }, 900);
+        } else {
+            showHint('Не все буквы верны — исправь красные', 'warn');
+        }
+    }
+
+    // ===== ЭКРАН ФИНАЛЬНОГО ВВОДА =====
+    function goToFinalInputScreen() {
+        gameActive = false;
+        if (candleTimer) clearTimeout(candleTimer);
+        document.querySelectorAll('.candle').forEach(c => c.classList.remove('lit'));
+
+        setTimeout(() => {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('final-input-screen').style.display = 'flex';
+
+            // Очищаем поля
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('final-input-' + i).value = '';
+                document.getElementById('final-display-' + i).innerHTML = '';
+            }
+            document.getElementById('final-hint-msg').textContent = '';
+            document.getElementById('final-hint-msg').className = 'hint-msg';
+
+            setTimeout(() => document.getElementById('final-input-1').focus(), 300);
+
+            // Разрешаем проверку финального ввода
+            finalCheckActive = true;
+        }, 500);
+    }
+
+    // ===== ПРОВЕРКА ТРЁХ СТРОК =====
+    let finalCheckActive = false;
+
+    function checkFinalInputs() {
+        if (!finalCheckActive) return;
+
+        const inputs = [
+            document.getElementById('final-input-1'),
+            document.getElementById('final-input-2'),
+            document.getElementById('final-input-3')
+        ];
+        const displays = [
+            document.getElementById('final-display-1'),
+            document.getElementById('final-display-2'),
+            document.getElementById('final-display-3')
+        ];
+
+        let allCorrect = true;
+        let allFilled = true;
+
+        inputs.forEach((inp, i) => {
+            const userVal = normalize(inp.value);
+            if (!userVal) allFilled = false;
+            const correct = STAGES[i];
+            renderInputDisplay(displays[i], userVal, correct);
+
+            const isCorrect = userVal.toLowerCase() === correct.toLowerCase();
+            if (!isCorrect) allCorrect = false;
+            // Подсветка рамки поля
+            inp.style.borderColor = isCorrect ? '#4caf50' : '#ff3333';
+        });
+
+        if (!allFilled) {
+            showFinalHint('Заполни все три строки!', 'warn');
+            return;
+        }
+
+        if (allCorrect) {
+            showFinalHint('Всё верно!', 'good');
+            finalCheckActive = false;
+            setTimeout(() => {
+                document.getElementById('final-input-screen').style.display = 'none';
+                document.getElementById('end-screen').style.display = 'flex';
+            }, 800);
+        } else {
+            showFinalHint('Не все слова верны — исправь красные буквы', 'warn');
+        }
+    }
+
+    let finalHintTimeout = null;
+    function showFinalHint(text, type) {
+        const el = document.getElementById('final-hint-msg');
+        el.textContent = text;
+        el.className = 'hint-msg ' + (type || '');
+        if (finalHintTimeout) clearTimeout(finalHintTimeout);
+        finalHintTimeout = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+
+    // ===== ПОДСВЕТКА БУКВ =====
+    function renderInputDisplay(displayEl, userInput, correctAnswer) {
+        displayEl.innerHTML = '';
+
+        const maxLen = Math.max(userInput.length, correctAnswer.length);
+        for (let i = 0; i < maxLen; i++) {
+            const userChar = userInput[i] || '';
+            const correctChar = correctAnswer[i] || '';
+
+            const charEl = document.createElement('div');
+            charEl.classList.add('input-char');
+
+            if (userChar === '') {
+                charEl.textContent = '·';
+                charEl.classList.add('wrong');
+            } else {
+                charEl.textContent = userChar;
+                if (userChar.toLowerCase() === correctChar.toLowerCase() && correctChar !== '') {
+                    charEl.classList.add('correct');
+                } else {
+                    charEl.classList.add('wrong');
+                }
+            }
+            displayEl.appendChild(charEl);
+        }
+    }
+
+    // ===== ПОДСКАЗКА ЭТАПОВ =====
+    let hintTimeout = null;
+    function showHint(text, type) {
+        const el = document.getElementById('hint-msg');
+        el.textContent = text;
+        el.className = 'hint-msg ' + (type || '');
+        if (hintTimeout) clearTimeout(hintTimeout);
+        hintTimeout = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+
+    // ===== ENTER =====
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        if (!gameActive && !finalCheckActive) return;
+
+        // Если это этап
+        if (gameActive && inputUnlocked) {
+            checkInput();
+        }
+        // Если это финальный экран
+        if (finalCheckActive) {
+            checkFinalInputs();
+        }
+    });
+
+    window.onload = () => {
+        document.getElementById('game-area').style.display = 'none';
+        document.getElementById('final-input-screen').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'none';
+    };
 </script>
 
 </body>
